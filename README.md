@@ -1,28 +1,32 @@
-#shortest_path - A C++ implementation of Dijkstra algorithm
+# shortest_path - A C++ implementation of Dijkstra algorithm
 
 Status: Devel
 
-## Purpose
+# Purpose
 Fun only.
 
-## Download
+# Download
 
-#### Sources
-	git clone https://github.com/bslew/shortest_path.git
-	
-#### Data files
-Go to shortest_path directory:
+```
+git clone https://github.com/bslew/shortest_path.git	
+```
 
-	cd shortest_path
+# Dependences
 
-
-## Dependences
 - gcc that yields at least c++11 statndars.
 - CMAKE (>=2.6)
 - boost
 
-## Compilation
+# Compilation
 
+```
+cmake .
+```
+
+
+```
+make
+```
 
 
 ## Use Examples
