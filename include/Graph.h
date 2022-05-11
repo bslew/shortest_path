@@ -38,6 +38,8 @@ namespace minpath {
 			unsigned long getNodesNum() const { return this->node.size(); }
 //			std::list<minpath::Node*>& neighbors(long i) { return this->linked_nodes[i]; }
 //			std::list<T>& dist(unsigned long i) { return this->link_lengths[i]; }
+			void build() {}
+			void solve();
 			
 //			std::list< std::list<T> > link_lengths;
 //			std::list< std::list<minpath::Node*> > linked_nodes;
@@ -256,6 +258,10 @@ inline std::ostream& minpath::operator <<(std::ostream &out,
 	}
 	return out;
 }
-
+/* ******************************************************************************************** */
+template<class T>
+inline void minpath::Graph<T>::solve() {
+		
+}
 
 #endif /* GRAPH_H_ */

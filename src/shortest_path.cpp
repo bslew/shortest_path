@@ -99,14 +99,16 @@ int main(int argc, char **argv) {
 	long jen=opt["yf"].as<int>();
 	field.mkBoundary(imin, imax, jmin, jmax);
 
-	if (opt["algo"].as<string>()=="dijkstra") {
-		///
-		/// build a graph
-		/// 
-		logger.info("Building graph");
-		minpath::FieldGraph<int> G(ist,jst,ien,jen,imin,imax,jmin,jmax,&field);
+	///
+	/// build a graph
+	/// 
+	logger.info("Building graph");
+	minpath::FieldGraph<int> G(ist,jst,ien,jen,imin,imax,jmin,jmax,&field);
 //		G.build();
-		logger.info("Graph done");
+	logger.info("Graph done");
+
+	
+	if (opt["algo"].as<string>()=="dijkstra") {
 		
 		
 		return 0;
