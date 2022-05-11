@@ -1,5 +1,7 @@
 #shortest_path - A C++ implementation of Dijkstra algorithm
 
+Status: Devel
+
 ## Purpose
 Fun only.
 
