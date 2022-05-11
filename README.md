@@ -31,5 +31,11 @@ make
 
 ## Use Examples
 
+```cd examples
+```
+
+```../src/shortest_path --obst obstacles1.txt
+```
+
 ## Authors
 Bartosz Lew (<[bartosz.lew@protonmail.com]>)
