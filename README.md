@@ -31,10 +31,12 @@ make
 
 ## Use Examples
 
-```cd examples
+```
+cd examples
 ```
 
-```../src/shortest_path --obst obstacles1.txt
+```
+../src/shortest_path --obst obstacles1.txt
 ```
 
 ## Authors
