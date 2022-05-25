@@ -13,10 +13,10 @@
 #include <fstream>
 
 namespace minpath {
-
+	
 	template <class T> class Node;
 	template <typename T> std::ostream& operator<< (std::ostream& out, Node<T> const& curr);
-
+	
 	/*
 	 *
 	 */
@@ -26,68 +26,71 @@ namespace minpath {
 			typedef enum {
 				regular,start,end
 			} node_t;
-
+			
 			typedef struct {
-				Node<T>* neigh_node;
-				T dist;
+					Node<T>* neigh_node;
+					T dist;
 			} neighbor_t;
 			
 			typedef struct {
-				std::list< neighbor_t > neigbours;
-				node_t node_type;
-				bool was_visited;
-				T i,j; // node coordinates
-				long id;
-				T min_dist_from_start;
+					std::list< neighbor_t > neigbours;
+					node_t node_type;
+					bool was_visited;
+					T i,j; // node coordinates
+					long id;
+					T min_dist_from_start;
 			} node_data_t;
-
+			
 			
 			Node();
 			virtual ~Node();
 			void initialize();
 			void setStart() { _node.node_type=start; }
 			void setEnd() { _node.node_type=end; }
-
+			void setMinDistFromStart(T dist) { _node.min_dist_from_start=dist; }
+			T getMinDistFromStart() const { return _node.min_dist_from_start; }
+			
 			void addNeighbour(neighbor_t& n);
 			bool isStart() const { return _node.node_type==start; }
 			bool isEnd() const { return _node.node_type==end; }
 			bool isRegular() const  { return _node.node_type==regular; }
+			bool wasVisited() const  { return _node.was_visited; }
+			void setVisited(bool v) { _node.was_visited=v; }
 			void print_info() {
-				
 			}
-			
+			std::list< neighbor_t >& neighbors() { return _node.neigbours; }
 			node_data_t& data() { return _node; }
 			const node_data_t& getNodeData() const {
 				return _node;
 			}
-
+			
 			node_data_t _node;
 	};
-
+	
 } /* namespace minpath */
 
 
 template <class T>
 inline minpath::Node<T>::Node() {
-	initialize();
+		initialize();
 }
 
 template <class T>
 inline minpath::Node<T>::~Node() {
-	// TODO Auto-generated destructor stub
+		// TODO Auto-generated destructor stub
 }
 
 template <class T>
 void minpath::Node<T>::addNeighbour(Node<T>::neighbor_t& n) {
-	this->_node.neigbours.push_back(n);
+		this->_node.neigbours.push_back(n);
 }
 
 template <class T>
 inline void minpath::Node<T>::initialize() {
-	_node.id=0;
-	_node.node_type=Node::regular;
-	_node.was_visited=false;
-
+		_node.id=0;
+		_node.node_type=Node::regular;
+		_node.was_visited=false;
+		
 }
 
 
@@ -98,7 +101,7 @@ inline std::ostream& minpath::operator <<(std::ostream &out,
 	std::cout << "---------" << std::endl;
 	std::cout << "Node> id: " << curr.getNodeData().id << std::endl;
 	std::cout << "Node> coords: " << curr.getNodeData().i << "," << curr.getNodeData().j << std::endl;
-	std::cout << "Node> was visited: " << curr.getNodeData().was_visited << std::endl;;
+	std::cout << "Node> was visited: " << curr.wasVisited() << std::endl;;
 	std::cout << "Node> is start: " << curr.isStart() << std::endl;;
 	std::cout << "Node> is end: " << curr.isEnd() << std::endl;;
 	std::cout << "Node> has " << curr.getNodeData().neigbours.size() << " neighbors" << std::endl;
@@ -109,7 +112,7 @@ inline std::ostream& minpath::operator <<(std::ostream &out,
 	}
 	std::cout << std::endl;
 	std::cout << "---------" << std::endl;
-
+	
 	return out;
 }
 

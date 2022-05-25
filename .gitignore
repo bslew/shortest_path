@@ -1,3 +1,8 @@
 /build/
 /test.log
 /.project
+/.cproject
+/CMakeFiles/
+/CMakeCache.txt
+/Makefile
+/cmake_install.cmake

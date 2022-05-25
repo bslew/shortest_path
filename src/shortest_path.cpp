@@ -107,9 +107,10 @@ int main(int argc, char **argv) {
 //		G.build();
 	logger.info("Graph done");
 
+	std::cout << "Graph\n" << G << "\n";
 	
 	if (opt["algo"].as<string>()=="dijkstra") {
-		
+		G.solve();
 		
 		return 0;
 	}
