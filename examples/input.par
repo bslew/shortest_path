@@ -1,6 +1,6 @@
 field_xmin=-3
-field_ymin=3
-field_xmax=-3
+field_ymin=-3
+field_xmax=3
 field_ymax=3
 algo=dijkstra
 x=0

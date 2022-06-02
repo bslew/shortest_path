@@ -31,7 +31,13 @@ namespace minpath {
 	template <class T>
 	class Graph {
 		public:
-			static bool cmp_nodes(Node<T>* a, Node<T>* b) { return a->getMinDistFromStart()<b->getMinDistFromStart(); }
+			static bool cmp_nodes(Node<T>* a, Node<T>* b) { 
+				if (a->getMinDistFromStart()!=b->getMinDistFromStart()) {
+					return a->getMinDistFromStart()<b->getMinDistFromStart(); 
+				}
+				return a<b;
+//				return a->getMinDistFromStart()<b->getMinDistFromStart(); 
+			}
 
 			Graph(long Nnodes=0);
 			virtual ~Graph();
@@ -42,6 +48,14 @@ namespace minpath {
 			);
 			//			void addNode(minpath::Node node);
 			
+			/*!
+				\brief return set of 
+				\details 
+				@param
+				@return
+			
+				\date Jun 2, 2022, 2:25:43 PM
+			*/
 			std::set< minpath::Node<T>*, decltype(minpath::Graph<T>::cmp_nodes)* > getUnvisitedNodes();
 			std::list< minpath::Node<T> >& nodes() { return this->node;}
 			const std::list< minpath::Node<T> > getNodes() const { return this->node;}
