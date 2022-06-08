@@ -101,6 +101,7 @@ inline std::ostream& minpath::operator <<(std::ostream &out,
 	std::cout << "---------" << std::endl;
 	std::cout << "Node> id: " << curr.getNodeData().id << std::endl;
 	std::cout << "Node> coords: " << curr.getNodeData().i << "," << curr.getNodeData().j << std::endl;
+	std::cout << "Node> min.path from start: " << curr.getMinDistFromStart() << std::endl;
 	std::cout << "Node> was visited: " << curr.wasVisited() << std::endl;;
 	std::cout << "Node> is start: " << curr.isStart() << std::endl;;
 	std::cout << "Node> is end: " << curr.isEnd() << std::endl;;

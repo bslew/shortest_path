@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 		std::cout << n1 << "\n";
 //		std::cout << n1 << "\n";
 		
-		G.addNode(n1);
+		G.addNode(&n1);
 		std::cout << "Graph\n" << G << "\n";
 	}
 	

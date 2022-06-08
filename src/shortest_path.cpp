@@ -110,8 +110,9 @@ int main(int argc, char **argv) {
 	std::cout << "Graph\n" << G << "\n";
 	
 	if (opt["algo"].as<string>()=="dijkstra") {
-		G.solve();
-		
+		auto minDist=G.solve();
+
+		std::cout << "minimal distance to destination node is " << minDist << std::endl;
 		return 0;
 	}
 	
