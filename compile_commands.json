@@ -1,0 +1,37 @@
+[
+{
+  "directory": "/media/blew/SDflat/home/blew/programy/shortest_path/src",
+  "command": "/usr/bin/c++   -I/media/blew/SDflat/home/blew/programy/shortest_path/include  -g   -o CMakeFiles/shortest_path.dir/shortest_path.cpp.o -c /media/blew/SDflat/home/blew/programy/shortest_path/src/shortest_path.cpp",
+  "file": "/media/blew/SDflat/home/blew/programy/shortest_path/src/shortest_path.cpp"
+},
+{
+  "directory": "/media/blew/SDflat/home/blew/programy/shortest_path/src",
+  "command": "/usr/bin/c++  -Dminpath_EXPORTS -I/media/blew/SDflat/home/blew/programy/shortest_path/include  -g -fPIC   -o CMakeFiles/minpath.dir/Node.cpp.o -c /media/blew/SDflat/home/blew/programy/shortest_path/src/Node.cpp",
+  "file": "/media/blew/SDflat/home/blew/programy/shortest_path/src/Node.cpp"
+},
+{
+  "directory": "/media/blew/SDflat/home/blew/programy/shortest_path/src",
+  "command": "/usr/bin/c++  -Dminpath_EXPORTS -I/media/blew/SDflat/home/blew/programy/shortest_path/include  -g -fPIC   -o CMakeFiles/minpath.dir/Path.cpp.o -c /media/blew/SDflat/home/blew/programy/shortest_path/src/Path.cpp",
+  "file": "/media/blew/SDflat/home/blew/programy/shortest_path/src/Path.cpp"
+},
+{
+  "directory": "/media/blew/SDflat/home/blew/programy/shortest_path/src",
+  "command": "/usr/bin/c++  -Dminpath_EXPORTS -I/media/blew/SDflat/home/blew/programy/shortest_path/include  -g -fPIC   -o CMakeFiles/minpath.dir/Graph.cpp.o -c /media/blew/SDflat/home/blew/programy/shortest_path/src/Graph.cpp",
+  "file": "/media/blew/SDflat/home/blew/programy/shortest_path/src/Graph.cpp"
+},
+{
+  "directory": "/media/blew/SDflat/home/blew/programy/shortest_path/src",
+  "command": "/usr/bin/c++  -Dminpath_EXPORTS -I/media/blew/SDflat/home/blew/programy/shortest_path/include  -g -fPIC   -o CMakeFiles/minpath.dir/Obstacles.cpp.o -c /media/blew/SDflat/home/blew/programy/shortest_path/src/Obstacles.cpp",
+  "file": "/media/blew/SDflat/home/blew/programy/shortest_path/src/Obstacles.cpp"
+},
+{
+  "directory": "/media/blew/SDflat/home/blew/programy/shortest_path/tests",
+  "command": "/usr/bin/c++   -I/media/blew/SDflat/home/blew/programy/shortest_path/include  -g   -o CMakeFiles/make_FieldGraph.dir/make_FieldGraph.cpp.o -c /media/blew/SDflat/home/blew/programy/shortest_path/tests/make_FieldGraph.cpp",
+  "file": "/media/blew/SDflat/home/blew/programy/shortest_path/tests/make_FieldGraph.cpp"
+},
+{
+  "directory": "/media/blew/SDflat/home/blew/programy/shortest_path/tests",
+  "command": "/usr/bin/c++   -I/media/blew/SDflat/home/blew/programy/shortest_path/include  -g   -o CMakeFiles/make_graph.dir/make_graph.cpp.o -c /media/blew/SDflat/home/blew/programy/shortest_path/tests/make_graph.cpp",
+  "file": "/media/blew/SDflat/home/blew/programy/shortest_path/tests/make_graph.cpp"
+}
+]
