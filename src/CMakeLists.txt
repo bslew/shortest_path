@@ -16,6 +16,7 @@ set (LIBRARIES
 	boost_program_options
 	boost_filesystem
 	boost_system
+	fmt
 )
 
 add_executable(shortest_path shortest_path.cpp)
