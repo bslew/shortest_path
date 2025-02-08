@@ -1,8 +1,8 @@
-field_xmin=-3
-field_ymin=-3
-field_xmax=3
-field_ymax=3
-algo=dijkstra
+field_xmin=0
+field_ymin=0
+field_xmax=2
+field_ymax=2
+algo=MinimalStepsCount
 x=0
 y=0
 xf=2
