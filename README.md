@@ -1,4 +1,4 @@
-# shortest_path - A C++ implementation of Dijkstra algorithm
+# shortest_path - Calculate shortest path between start and finish nodes on a graph.
 
 Status: Devel
 
@@ -13,7 +13,7 @@ git clone https://github.com/bslew/shortest_path.git
 
 # Dependences
 
-- gcc that yields at least c++11 statndars.
+- gcc that yields at least c++17.
 - CMAKE (>=2.6)
 - boost
 
@@ -32,12 +32,9 @@ make
 ## Use Examples
 
 ```
-cd examples
-```
-
-```
-../src/shortest_path --obst obstacles1.txt
+cd build/src
+./shortest_path -c ../../examples/input.par
 ```
 
 ## Authors
-Bartosz Lew (<[bartosz.lew@protonmail.com]>)
+Bartosz Lew [bartosz.lew@protonmail.com]
