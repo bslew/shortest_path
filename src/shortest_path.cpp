@@ -1,5 +1,5 @@
-/* This program implements calculation of finding shortest path from point A to
- * point B in 2d space with obstacles.
+/* This program implements calculation of finding shortest path from start node
+ * to end node of any graph.
  *
  * Jan 1, 2022, 8:25:00 PM
  */
@@ -39,12 +39,6 @@ string getCmdString(int argc, char** argv);
 string getProgramVersionString();
 boost::program_options::variables_map parseOptions(int argc, char** argv);
 
-/* ********************************************************************************************
- */
-/* ********************************************************************************************
- */
-/* ********************************************************************************************
- */
 int main(int argc, char** argv) {
 
     // initialize parser
@@ -92,14 +86,16 @@ int main(int argc, char** argv) {
     long jst = opt["y"].as<int>();
     long ien = opt["xf"].as<int>();
     long jen = opt["yf"].as<int>();
-    field.mkBoundary(imin, imax, jmin, jmax);
 
     //
     // build a graph
     //
     logger.info("Building graph");
     minpath::FieldGraph<int> G(ist, jst, ien, jen, imin, imax, jmin, jmax,
-                               &field);
+                               field);
+
+    // G.node(0).neighbors()[3] = 2;
+
     logger.info("Graph done");
 
     if (opt["pg"].as<bool>()) {
@@ -107,27 +103,34 @@ int main(int argc, char** argv) {
         exit(0);
     }
 
-    if (opt["algo"].as<string>() == "walk1") {
-        auto minDist = G.solve();
-
-        std::cout << "minimal distance to destination node is " << minDist
-                  << std::endl;
-        return 0;
-    } else if (opt["algo"].as<string>() == "MinimalStepsCount") {
-        auto minDist = G.solveMinimalStepsCount();
-
-        std::cout << "minimal distance to destination node is " << minDist
-                  << std::endl;
-        return 0;
+    if (opt["dg"].as<string>() != "") {
+        G.dumpGraph(opt["dg"].as<string>());
     }
 
-    minpath::Path p(opt["x"].as<int>(), opt["y"].as<int>(), opt["xf"].as<int>(),
-                    opt["yf"].as<int>(), opt["verbosity"].as<int>());
+    if (opt["algo"].as<string>() == "MinimalDistance") {
+        auto minDist = G.solveMinimalDistance();
+        if (minDist.has_value()) {
+            logger.info("Minimal distance to destination node is {0}",
+                        minDist.value());
+        } else {
+            logger.info("End node cannot be reached");
+        }
+        return 0;
+        // } else if (opt["algo"].as<string>() == "MinimalStepsCount") {
+        //     auto minDist = G.solveMinimalStepsCount();
 
-    p.set_obstacles(field);
+        //     std::cout << "minimal distance to destination node is " <<
+        //     minDist
+        //               << std::endl;
+        //     return 0;
+    }
 
-    logger.info("Starting walk");
-    p.step(opt["x"].as<long>(), opt["y"].as<long>());
+    // minpath::Path p(opt["x"].as<int>(), opt["y"].as<int>(),
+    // opt["xf"].as<int>(),
+    //                 opt["yf"].as<int>(), opt["verbosity"].as<int>());
+
+    // logger.info("Starting walk");
+    // p.step(opt["x"].as<long>(), opt["y"].as<long>());
 
     return 0;
 
@@ -177,12 +180,13 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
         po::options_description generic("Generic options");
         generic.add_options()("version,V", "print version string")
             //			("ifile,i",
-            //po::value<string>(&stropt)->multitoken()->required(), "input file
-            //name")
-            //		    ("version,V", po::bool_switch()->default_value(false),
-            //"print program version and exit")
-            //		    ("switch,s", po::bool_switch()->default_value(false),
-            //"switch option")
+            // po::value<string>(&stropt)->multitoken()->required(), "input file
+            // name")
+            //		    ("version,V",
+            // po::bool_switch()->default_value(false), "print program version
+            // and exit")
+            //		    ("switch,s",
+            // po::bool_switch()->default_value(false), "switch option")
             ("help", "produce help message")(
                 "config,c",
                 po::value<string>(&config_file)->default_value(config_file),
@@ -206,13 +210,16 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
              "Obstacles file (space separated x,y integer coordinates.")(
                 "pg", po::value<bool>()->default_value(false),
                 "print graph and exit")
-            //		    ("mask", po::value<string>(&stropt)->default_value(""),
-            //"specify mask as one of: \n" 					"c,A,Z,r -- eg. c,-50,50,0.5 - will
-            //create a circular mask on sphere in deg." 					"Azimuth from south
-            //westwards")
-            ("algo", po::value<string>()->default_value("dijkstra"),
-             "select algorithm."
-             "For now only dijkstra is possible")
+            //		    ("mask",
+            // po::value<string>(&stropt)->default_value(""), "specify mask as
+            // one of: \n" 					"c,A,Z,r -- eg.
+            // c,-50,50,0.5
+            // - will create a circular mask on sphere in deg."
+            // "Azimuth from south westwards")
+            ("dg", po::value<string>()->default_value(""), "dump graph")(
+                "algo", po::value<string>()->default_value("dijkstra"),
+                "select algorithm."
+                "For now only dijkstra is possible")
 
                 ("x", po::value<int>()->default_value(0),
                  "x start")("y", po::value<int>()->default_value(0), "y start")(
@@ -355,7 +362,8 @@ spdlog::logger getLogger(int verbosity) {
     logger.set_level(spdlog::level::info);
 
     if (verbosity > 2) {
-        //		cout << "setting verbosity " << opt["verbosity"].as<int>()
+        //		cout << "setting verbosity " <<
+        // opt["verbosity"].as<int>()
         //<< "\n";
         logger.sinks()[0]->set_level(spdlog::level::debug);
         logger.sinks()[1]->set_level(spdlog::level::debug);

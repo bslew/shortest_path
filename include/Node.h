@@ -13,8 +13,12 @@
 #include <list>
 #include <map>
 #include <set>
+#include <vector>
 
 namespace minpath {
+
+template <typename T> void printVec(std::vector<T> V, std::string title);
+template <typename T> void printSet(std::set<T> S, std::string title);
 
 template <class T> class Node;
 template <typename T>
@@ -52,11 +56,13 @@ template <class T> class Node {
     size_t getNodeId() const { return _node.id; }
     void addNeighbour(Node<T>& n, T dist = 1);
     void addNeighbour(size_t id, T dist) { _node.neighbors[id] = dist; }
+    void removeNeighbour(size_t id);
     bool isStart() const { return _node.node_type == start; }
     bool isEnd() const { return _node.node_type == end; }
     bool isRegular() const { return _node.node_type == regular; }
     bool wasVisited() const { return _node.was_visited; }
     void setVisited(bool v) { _node.was_visited = v; }
+    std::vector<T> coords() { return {_node.i, _node.j}; }
     void print_info() {}
     const std::map<size_t, T>& getNeighbors() const { return _node.neighbors; }
     std::map<size_t, T>& neighbors() { return _node.neighbors; }
@@ -76,6 +82,10 @@ template <class T> inline minpath::Node<T>::~Node() {
 
 template <class T> void minpath::Node<T>::addNeighbour(Node<T>& n, T dist) {
     this->_node.neighbors[n.getNodeId()] = dist;
+}
+
+template <class T> inline void minpath::Node<T>::removeNeighbour(size_t id) {
+    _node.neighbors.erase(id);
 }
 
 template <class T>
@@ -119,6 +129,20 @@ inline std::ostream& minpath::operator<<(std::ostream& out,
     std::cout << "---------" << std::endl;
 
     return out;
+}
+
+template <typename T>
+void minpath::printVec(std::vector<T> V, std::string title) {
+    std::cout << title << "\n";
+    for (auto v : V) {
+        std::cout << v << ", ";
+    }
+    std::cout << "\n";
+}
+
+template <typename T> void minpath::printSet(std::set<T> S, std::string title) {
+    std::vector<T> V(S.begin(), S.end());
+    printVec(V, title);
 }
 
 #endif /* NODE_H_ */

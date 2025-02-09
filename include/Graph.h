@@ -15,6 +15,7 @@
 #include <limits>
 #include <list>
 #include <map>
+#include <optional>
 #include <set>
 #include <unordered_set>
 
@@ -47,7 +48,7 @@ template <class T> class Graph {
     std::map<size_t, minpath::Node<T>> getNodes() const { return this->_nodes; }
     unsigned long getNodesNum() const { return this->getNodes().size(); }
     void build() {}
-    minpath::Node<T>& node(size_t index) { return _nodes[index]; }
+    minpath::Node<T>& node(size_t id) { return _nodes[id]; }
 
     /*!
             \brief set all nodes as unvisited and set their distances to initial
@@ -75,8 +76,9 @@ template <class T> class Graph {
 
     std::vector<size_t> getNodesAtDistance(T dist);
 
-    T solve();
-    T solveMinimalStepsCount();
+    std::optional<T> solveMinimalDistance();
+    void dumpGraph(std::string dumpFile);
+    // T solveMinimalStepsCount();
 
     std::map<size_t, minpath::Node<T>> _nodes;
     static constexpr T max_dist = std::numeric_limits<T>::max();
@@ -95,14 +97,14 @@ template <class T> class FieldGraph : public Graph<T> {
   public:
     FieldGraph() : Graph<T>(){};
     FieldGraph(T ist, T jst, T ien, T jen, T imin, T imax, T jmin, T jmax,
-               Obstacles<T>* obst);
+               Obstacles<T>& obst);
     //			void build(T imin, T imax, T jmin, T jmax, Obstacles<T>&
     // obst);
     void build();
     std::list<minpath::Node<T>*> get_linked_nodes(T i, T j);
 
     T imin, imax, jmin, jmax, ist, jst, ien, jen; // coordinate space
-    Obstacles<T>* obst;
+    Obstacles<T> _obst;
 };
 
 } /* namespace minpath */
@@ -120,7 +122,7 @@ template <class T> minpath::Graph<T>::Graph(long nNodes) {}
 template <class T>
 inline minpath::FieldGraph<T>::FieldGraph(T ist, T jst, T ien, T jen, T imin,
                                           T imax, T jmin, T jmax,
-                                          Obstacles<T>* obst) {
+                                          Obstacles<T>& obst) {
     this->ist = ist;
     this->jst = jst;
     this->ien = ien;
@@ -131,7 +133,7 @@ inline minpath::FieldGraph<T>::FieldGraph(T ist, T jst, T ien, T jen, T imin,
     this->jmin = jmin;
     this->jmax = jmax;
 
-    this->obst = obst;
+    this->_obst = obst;
     build();
 }
 
@@ -171,7 +173,7 @@ template <class T> inline void minpath::FieldGraph<T>::build() {
     // lower left corner
     field[0][0].addNeighbour(field[0][1]);
     field[0][0].addNeighbour(field[1][0]);
-    field[0][0].addNeighbour(field[1][1]);
+    // field[0][0].addNeighbour(field[1][1]);
 
     // lower right corner
     field[Ncols - 1][0].addNeighbour(field[Ncols - 2][0]);
@@ -223,16 +225,35 @@ template <class T> inline void minpath::FieldGraph<T>::build() {
         }
     }
 
+    // remove connections between nodes due to obstacles
+    for (auto& xy : _obst.coords()) {
+        auto i = xy[0] - imin;
+        auto j = xy[1] - jmin;
+
+        auto removedNodeId = field[i][j].getNodeId();
+        // remove left-right connections
+        if (i > 0) {
+            field[i - 1][j].removeNeighbour(removedNodeId);
+        }
+        if (i < Ncols - 1) {
+            field[i + 1][j].removeNeighbour(removedNodeId);
+        }
+        // remove top-down connections
+        if (j > 0) {
+            field[i][j - 1].removeNeighbour(removedNodeId);
+        }
+        if (j < Nrows - 1) {
+            field[i][j + 1].removeNeighbour(removedNodeId);
+        }
+        // remove connections for obstacle node
+        field[i][j].neighbors().clear();
+    }
+
+    // add nodes to graph
     for (long i = 0; i < Ncols; i++) {
         for (long j = 0; j < Nrows; j++) {
             Graph<T>::addNode(field[i][j]);
         }
-    }
-
-    if (this->obst != 0) {
-        std::cout << "Warning: currently we do not support building graphs "
-                     "with obstacles (ignoring)"
-                  << std::endl;
     }
 }
 /* ********************************************************************************************
@@ -361,41 +382,8 @@ inline std::vector<size_t> minpath::Graph<T>::getNodesAtDistance(T dist) {
     return nodesAtRequestedDistance;
 }
 
-/* ********************************************************************************************
- */
-template <class T> inline T minpath::Graph<T>::solve() {
-
-    initializeGraph();
-
-    // std::cout << "initialized graph\n" << *this << "\n";
-
-    // auto unvisited_nodes = getUnvisitedNodes();
-    // unsigned startNodeIdx = getStartNodeId();
-    // minpath::Node<T> cur = node(startNodeIdx);
-    // minpath::Node<T> endNode = node(getStopNodeId());
-
-    // bool unvisitedMinDistEqInf = false;
-    //
-    // while (!endNode.wasVisited() && !unvisitedMinDistEqInf) {
-
-    //     // get set of unvisited neighbors
-    //     // and on the graph update their distances from the starting node
-    //     auto unvisitedNeigh = unvisitedNeighbors(cur);
-
-    //     cur.setVisited(true);
-    //     if (!cur.isEnd()) {
-    //         unvisited_nodes.erase(cur.getNodeId());
-    //         cur = get_min_dist_node(unvisitedNeigh);
-    //         unvisitedMinDistEqInf =
-    //             get_min_dist(unvisited_nodes) == max_dist;
-    //     }
-    //     std::cout << "Current node:\n " << cur << "\n";
-    // }
-    // return cur.getMinDistFromStart();
-    return 0;
-}
-
-template <class T> inline T minpath::Graph<T>::solveMinimalStepsCount() {
+template <class T>
+inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
 
     initializeGraph();
 
@@ -412,9 +400,10 @@ template <class T> inline T minpath::Graph<T>::solveMinimalStepsCount() {
     // bool unvisitedMinDistEqInf = false;
     //
     std::vector<size_t> nodesToVisit = {startNodeIdx};
+    // std::vector<T> distances;
+    std::set<T> distances;
     while (!endNode.wasVisited() && !unvisited_nodes.empty()) {
 
-        std::vector<T> distances;
         for (auto curId : nodesToVisit) {
             auto& cur = node(curId);
             std::cout << "Current node:\n " << cur << "\n";
@@ -422,27 +411,121 @@ template <class T> inline T minpath::Graph<T>::solveMinimalStepsCount() {
 
             for (auto& [nId, dist] : cur.neighbors()) {
                 auto& nNode = node(nId);
+                std::cout << "Current neighbor:\n " << nNode << "\n";
                 if (!nNode.wasVisited()) {
-                    distances.push_back(curDist + dist);
+                    // distances.push_back(curDist + dist);
+                    distances.insert(curDist + dist);
                     nNode.setMinDistFromStart(curDist + dist);
                     nNode.setVisited(true);
-                    std::cout << "Current neighbor:\n " << nNode << "\n";
                 }
             }
         }
-        curDist = *std::min_element(distances.begin(), distances.end());
+
+        if (distances.empty()) {
+            break;
+        } else {
+            printSet<T>(distances, "distances");
+            // curDist = *std::min_element(distances.begin(), distances.end());
+            curDist = *distances.begin();
+        }
 
         // find nodes to visit
         std::cout << "Processing nodes at distance " << curDist << "\n";
 
         nodesToVisit = getNodesAtDistance(curDist);
+        printVec<size_t>(nodesToVisit, "nodesToVisit");
+        distances.erase(curDist);
 
         if (endNode.wasVisited()) {
             std::cout << "End node visited..stopping walk\n";
             break;
         }
     }
-    return curDist;
+
+    if (endNode.wasVisited()) {
+        return curDist;
+    }
+    return std::nullopt;
 }
+
+template <class T>
+inline void minpath::Graph<T>::dumpGraph(std::string dumpFile) {
+    std::ofstream ofsN(dumpFile + ".nodes");
+    std::ofstream ofsD(dumpFile + ".dist");
+    assert(ofsN.is_open());
+    assert(ofsD.is_open());
+    for (auto [id, node] : nodes()) {
+        ofsN << id << " ";
+        ofsD << id << " ";
+        for (auto [neigh, dist] : node.neighbors()) {
+            ofsN << neigh << " ";
+            ofsD << dist << " ";
+        }
+        ofsN << std::endl;
+        ofsD << std::endl;
+    }
+    ofsN.close();
+    ofsD.close();
+
+    // dump coordinates
+    std::ofstream ofs(dumpFile + ".coords");
+    assert(ofs.is_open());
+    for (auto [id, node] : nodes()) {
+        ofs << id << " ";
+        for (auto coord : node.coords()) {
+            ofs << coord << " ";
+        }
+        ofs << std::endl;
+    }
+    ofs.close();
+}
+// template <class T> inline T minpath::Graph<T>::solveMinimalStepsCount() {
+//     initializeGraph();
+
+//     std::cout << "initialized graph\n"
+//               << "\n";
+
+//     auto unvisited_nodes = getUnvisitedNodes();
+//     auto startNodeIdx = getStartNodeId();
+//     minpath::Node<T>& cur = node(startNodeIdx);
+//     auto curDist = cur.getMinDistFromStart();
+//     auto newDist = curDist;
+//     minpath::Node<T>& endNode = node(getStopNodeId());
+
+//     // bool unvisitedMinDistEqInf = false;
+//     //
+//     std::vector<size_t> nodesToVisit = {startNodeIdx};
+//     while (!endNode.wasVisited() && !unvisited_nodes.empty()) {
+
+//         std::vector<T> distances;
+//         for (auto curId : nodesToVisit) {
+//             auto& cur = node(curId);
+//             std::cout << "Current node:\n " << cur << "\n";
+//             cur.setVisited(true);
+
+//             for (auto& [nId, dist] : cur.neighbors()) {
+//                 auto& nNode = node(nId);
+//                 if (!nNode.wasVisited()) {
+//                     distances.push_back(curDist + dist);
+//                     nNode.setMinDistFromStart(curDist + dist);
+//                     nNode.setVisited(true);
+//                     std::cout << "Current neighbor:\n " << nNode << "\n";
+//                 }
+//             }
+//         }
+//         curDist = *std::min_element(distances.begin(), distances.end());
+
+//         // find nodes to visit
+//         std::cout << "Processing nodes at distance " << curDist << "\n";
+
+//         nodesToVisit = getNodesAtDistance(curDist);
+
+//         if (endNode.wasVisited()) {
+//             std::cout << "End node visited..stopping walk\n";
+//             break;
+//         }
+//     }
+//     return curDist;
+// }
 
 #endif /* GRAPH_H_ */
