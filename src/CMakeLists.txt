@@ -1,4 +1,4 @@
-project (shortest_path)
+project (ShortestPath)
 
 set (MINPATH_HEADERS 
 	Path.h

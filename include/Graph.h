@@ -33,8 +33,8 @@ template <class T> class Graph {
     Graph(long Nnodes = 0);
     virtual ~Graph();
 
-    void addNode(minpath::Node<T>& node);
-
+    void addNode(const minpath::Node<T>& node);
+    void addNodes(const std::vector<minpath::Node<T>>& nodes);
     /*!
             \brief return set of
             \details
@@ -258,8 +258,16 @@ template <class T> inline void minpath::FieldGraph<T>::build() {
 }
 /* ********************************************************************************************
  */
-template <class T> void minpath::Graph<T>::addNode(minpath::Node<T>& node) {
+template <class T>
+void minpath::Graph<T>::addNode(const minpath::Node<T>& node) {
     this->_nodes[node.getNodeId()] = node;
+}
+
+template <class T>
+void minpath::Graph<T>::addNodes(const std::vector<minpath::Node<T>>& nodes) {
+    for (const auto& node : nodes) {
+        addNode(node);
+    }
 }
 /* ********************************************************************************************
  */
@@ -390,11 +398,8 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
     std::cout << "initialized graph\n"
               << "\n";
 
-    auto unvisited_nodes = getUnvisitedNodes();
     auto startNodeIdx = getStartNodeId();
-    minpath::Node<T>& cur = node(startNodeIdx);
-    auto curDist = cur.getMinDistFromStart();
-    auto newDist = curDist;
+    auto curDist = node(startNodeIdx).getMinDistFromStart();
     minpath::Node<T>& endNode = node(getStopNodeId());
 
     // bool unvisitedMinDistEqInf = false;
@@ -402,48 +407,51 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
     std::vector<size_t> nodesToVisit = {startNodeIdx};
     // std::vector<T> distances;
     std::set<T> distances;
-    while (!endNode.wasVisited() && !unvisited_nodes.empty()) {
+    while (!nodesToVisit.empty()) {
 
         for (auto curId : nodesToVisit) {
             auto& cur = node(curId);
-            std::cout << "Current node:\n " << cur << "\n";
             cur.setVisited(true);
+            std::cout << "Current node:\n " << cur << "\n";
 
             for (auto& [nId, dist] : cur.neighbors()) {
                 auto& nNode = node(nId);
-                std::cout << "Current neighbor:\n " << nNode << "\n";
+                // distances.push_back(curDist + dist);
                 if (!nNode.wasVisited()) {
-                    // distances.push_back(curDist + dist);
-                    distances.insert(curDist + dist);
                     nNode.setMinDistFromStart(curDist + dist);
                     nNode.setVisited(true);
+                    distances.insert(curDist + dist);
+                } else {
+                    if (curDist + dist < nNode.getMinDistFromStart()) {
+                        nNode.setMinDistFromStart(curDist + dist);
+                        distances.insert(curDist + dist);
+                    }
                 }
+                std::cout << "Current neighbor:\n " << nNode << "\n";
             }
         }
 
-        if (distances.empty()) {
-            break;
-        } else {
+        if (!distances.empty()) {
             printSet<T>(distances, "distances");
             // curDist = *std::min_element(distances.begin(), distances.end());
             curDist = *distances.begin();
+            // find nodes to visit
+            std::cout << "Will process nodes at distance " << curDist << "\n";
+            nodesToVisit = getNodesAtDistance(curDist);
+            printVec<size_t>(nodesToVisit, "nodesToVisit");
         }
 
-        // find nodes to visit
-        std::cout << "Processing nodes at distance " << curDist << "\n";
-
-        nodesToVisit = getNodesAtDistance(curDist);
-        printVec<size_t>(nodesToVisit, "nodesToVisit");
         distances.erase(curDist);
 
-        if (endNode.wasVisited()) {
-            std::cout << "End node visited..stopping walk\n";
+        if (endNode.wasVisited() && curDist >= endNode.getMinDistFromStart()) {
+            std::cout << "End node visited and distances from other nodes are "
+                         "larger than the path already found, stopping walk\n";
             break;
         }
     }
 
     if (endNode.wasVisited()) {
-        return curDist;
+        return endNode.getMinDistFromStart();
     }
     return std::nullopt;
 }
