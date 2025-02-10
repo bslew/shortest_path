@@ -121,6 +121,33 @@ TEST(ShortestPathTest, twoWaysDifferentDistances3) {
               3); // Expected shortest path from node 0 to node 2 is 3
 }
 
+TEST(ShortestPathTest, pathDoesNotExist) {
+    Graph<int> G;
+    Node<int> n0(0);
+    Node<int> n1(1);
+    Node<int> n2(2);
+
+    /*
+        2
+
+        1
+        |
+        0
+    */
+
+    n0.addNeighbour(1, 1);
+    n0.setStart();
+
+    n1.addNeighbour(0, 1);
+
+    n2.setEnd();
+
+    G.addNodes({n0, n1, n2});
+
+    auto minDist = G.solveMinimalDistance();
+    ASSERT_FALSE(minDist.has_value()); // Expected path does not exist
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

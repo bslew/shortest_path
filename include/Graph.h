@@ -74,7 +74,7 @@ template <class T> class Graph {
     T get_min_dist(std::unordered_set<size_t>& nodes);
     minpath::Node<T> get_min_dist_node(std::unordered_set<size_t>& nodes);
 
-    std::vector<size_t> getNodesAtDistance(T dist);
+    std::set<size_t> getNodesAtDistance(T dist);
 
     std::optional<T> solveMinimalDistance();
     void dumpGraph(std::string dumpFile);
@@ -380,11 +380,11 @@ minpath::Graph<T>::get_min_dist_node(std::unordered_set<size_t>& nodesIds) {
 }
 
 template <class T>
-inline std::vector<size_t> minpath::Graph<T>::getNodesAtDistance(T dist) {
-    std::vector<size_t> nodesAtRequestedDistance;
+inline std::set<size_t> minpath::Graph<T>::getNodesAtDistance(T dist) {
+    std::set<size_t> nodesAtRequestedDistance;
     for (auto [id, node] : getNodes()) {
         if (node.getMinDistFromStart() == dist) {
-            nodesAtRequestedDistance.push_back(id);
+            nodesAtRequestedDistance.insert(id);
         }
     }
     return nodesAtRequestedDistance;
@@ -401,12 +401,9 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
     auto startNodeIdx = getStartNodeId();
     auto curDist = node(startNodeIdx).getMinDistFromStart();
     minpath::Node<T>& endNode = node(getStopNodeId());
-
-    // bool unvisitedMinDistEqInf = false;
-    //
-    std::vector<size_t> nodesToVisit = {startNodeIdx};
-    // std::vector<T> distances;
+    std::set<size_t> nodesToVisit = {startNodeIdx};
     std::set<T> distances;
+
     while (!nodesToVisit.empty()) {
 
         for (auto curId : nodesToVisit) {
@@ -416,7 +413,6 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
 
             for (auto& [nId, dist] : cur.neighbors()) {
                 auto& nNode = node(nId);
-                // distances.push_back(curDist + dist);
                 if (!nNode.wasVisited()) {
                     nNode.setMinDistFromStart(curDist + dist);
                     nNode.setVisited(true);
@@ -430,15 +426,14 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
                 std::cout << "Current neighbor:\n " << nNode << "\n";
             }
         }
-
+        nodesToVisit.clear();
         if (!distances.empty()) {
             printSet<T>(distances, "distances");
-            // curDist = *std::min_element(distances.begin(), distances.end());
             curDist = *distances.begin();
             // find nodes to visit
             std::cout << "Will process nodes at distance " << curDist << "\n";
             nodesToVisit = getNodesAtDistance(curDist);
-            printVec<size_t>(nodesToVisit, "nodesToVisit");
+            printSet<size_t>(nodesToVisit, "nodesToVisit");
         }
 
         distances.erase(curDist);
@@ -487,53 +482,5 @@ inline void minpath::Graph<T>::dumpGraph(std::string dumpFile) {
     }
     ofs.close();
 }
-// template <class T> inline T minpath::Graph<T>::solveMinimalStepsCount() {
-//     initializeGraph();
-
-//     std::cout << "initialized graph\n"
-//               << "\n";
-
-//     auto unvisited_nodes = getUnvisitedNodes();
-//     auto startNodeIdx = getStartNodeId();
-//     minpath::Node<T>& cur = node(startNodeIdx);
-//     auto curDist = cur.getMinDistFromStart();
-//     auto newDist = curDist;
-//     minpath::Node<T>& endNode = node(getStopNodeId());
-
-//     // bool unvisitedMinDistEqInf = false;
-//     //
-//     std::vector<size_t> nodesToVisit = {startNodeIdx};
-//     while (!endNode.wasVisited() && !unvisited_nodes.empty()) {
-
-//         std::vector<T> distances;
-//         for (auto curId : nodesToVisit) {
-//             auto& cur = node(curId);
-//             std::cout << "Current node:\n " << cur << "\n";
-//             cur.setVisited(true);
-
-//             for (auto& [nId, dist] : cur.neighbors()) {
-//                 auto& nNode = node(nId);
-//                 if (!nNode.wasVisited()) {
-//                     distances.push_back(curDist + dist);
-//                     nNode.setMinDistFromStart(curDist + dist);
-//                     nNode.setVisited(true);
-//                     std::cout << "Current neighbor:\n " << nNode << "\n";
-//                 }
-//             }
-//         }
-//         curDist = *std::min_element(distances.begin(), distances.end());
-
-//         // find nodes to visit
-//         std::cout << "Processing nodes at distance " << curDist << "\n";
-
-//         nodesToVisit = getNodesAtDistance(curDist);
-
-//         if (endNode.wasVisited()) {
-//             std::cout << "End node visited..stopping walk\n";
-//             break;
-//         }
-//     }
-//     return curDist;
-// }
 
 #endif /* GRAPH_H_ */
