@@ -13,16 +13,13 @@
  */
 
 #include "Graph.h"
-#include "Obstacles.h"
+#include "Logger.h"
 #include "Path.h"
 #include <assert.h>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <math.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -34,7 +31,6 @@
 
 using namespace std;
 
-spdlog::logger getLogger(int verbosity);
 string getCmdString(int argc, char** argv);
 string getProgramVersionString();
 boost::program_options::variables_map parseOptions(int argc, char** argv);
@@ -44,9 +40,9 @@ int main(int argc, char** argv) {
     // initialize parser
     boost::program_options::variables_map opt = parseOptions(argc, argv);
 
-    spdlog::logger logger = getLogger(opt["verbosity"].as<int>());
-    logger.info("shortest_path - NEW RUN");
-    logger.info(getCmdString(argc, argv));
+    auto logger = minpath::getLogger(opt["verbosity"].as<int>());
+    logger.debug("shortest_path - NEW RUN");
+    logger.debug(getCmdString(argc, argv));
 
     //	std::cout << opt["input_file"].as< vector<string> >() << std::endl;
     //	if (opt.count("input-file")) {
@@ -73,10 +69,10 @@ int main(int argc, char** argv) {
     /// Loading obstacles as list of i,j coordinates in the field
     ///
 
-    logger.info("Loading obstacles from {}", opt["obst"].as<string>());
+    logger.debug("Loading obstacles from {}", opt["obst"].as<string>());
     minpath::Obstacles<int> field;
     field.load(opt["obst"].as<string>());
-    logger.info("Loaded {} obstacle points", field.size());
+    logger.debug("Loaded {} obstacle points", field.size());
 
     long imin = opt["field_xmin"].as<int>();
     long imax = opt["field_xmax"].as<int>();
@@ -90,13 +86,13 @@ int main(int argc, char** argv) {
     //
     // build a graph
     //
-    logger.info("Building graph");
+    logger.debug("Building graph");
     minpath::FieldGraph<int> G(ist, jst, ien, jen, imin, imax, jmin, jmax,
-                               field);
+                               field, logger);
 
     // G.node(0).neighbors()[3] = 2;
 
-    logger.info("Graph done");
+    logger.debug("Graph done");
 
     if (opt["pg"].as<bool>()) {
         std::cout << "Graph\n" << G << "\n";
@@ -201,7 +197,7 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
         // config file
         po::options_description config("Configuration");
         config.add_options()("verbosity,v",
-                             po::value<int>(&verbo)->default_value(0),
+                             po::value<int>(&verbo)->default_value(5),
                              "verbosity level")
             //            ("include-path,I",
             //                 po::value< vector<string> >()->composing(),
@@ -289,7 +285,7 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
             cerr << "cannot open parameter file: " << parameter_file << "\n";
             //            return 0;
         } else {
-            cout << "Using parameter file " << parameter_file << "\n";
+            // cout << "Using parameter file " << parameter_file << "\n";
             store(parse_config_file(ifs, parameter_file_options), vm);
             notify(vm);
         }
@@ -325,8 +321,8 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
                 }
         */
 
-        if (verbo > 0)
-            cout << "Verbosity level is " << verbo << "\n";
+        // if (verbo > 0)
+        //     cout << "Verbosity level is " << verbo << "\n";
     } catch (exception& e) {
         cout << e.what() << "\n";
         exit(1);
@@ -334,8 +330,7 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
 
     return vm;
 }
-/* ********************************************************************************************
- */
+
 string getProgramVersionString() {
     string rev;
     rev = "0.1.1";
@@ -346,34 +341,7 @@ string getProgramVersionString() {
 
     return rev;
 }
-/* ********************************************************************************************
- */
-spdlog::logger getLogger(int verbosity) {
-    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    console_sink->set_level(spdlog::level::info);
-    //    console_sink->set_level(spdlog::level::debug);
-    //    console_sink->set_pattern("[test] [%^%l%$] %v");
 
-    auto file_sink =
-        std::make_shared<spdlog::sinks::basic_file_sink_mt>("test.log", true);
-    file_sink->set_level(spdlog::level::debug);
-
-    spdlog::logger logger("test", {console_sink, file_sink});
-    logger.set_level(spdlog::level::info);
-
-    if (verbosity > 2) {
-        //		cout << "setting verbosity " <<
-        // opt["verbosity"].as<int>()
-        //<< "\n";
-        logger.sinks()[0]->set_level(spdlog::level::debug);
-        logger.sinks()[1]->set_level(spdlog::level::debug);
-        logger.set_level(spdlog::level::debug);
-    }
-
-    return logger;
-}
-/* ********************************************************************************************
- */
 string getCmdString(int argc, char** argv) {
     stringstream ss;
     for (long i = 0; i < argc; i++) {
@@ -381,5 +349,3 @@ string getCmdString(int argc, char** argv) {
     }
     return ss.str();
 }
-/* ********************************************************************************************
- */

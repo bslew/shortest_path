@@ -8,6 +8,7 @@
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
+#include "Logger.h"
 #include "Node.h"
 #include "Obstacles.h"
 #include <algorithm>
@@ -30,7 +31,7 @@ std::ostream& operator<<(std::ostream& out, Graph<T> const& curr);
  */
 template <class T> class Graph {
   public:
-    Graph(long Nnodes = 0);
+    Graph(minpath::Logger logger = minpath::getLogger());
     virtual ~Graph();
 
     void addNode(const minpath::Node<T>& node);
@@ -82,6 +83,7 @@ template <class T> class Graph {
 
     std::map<size_t, minpath::Node<T>> _nodes;
     static constexpr T max_dist = std::numeric_limits<T>::max();
+    minpath::Logger _logger;
 };
 
 /*!
@@ -95,9 +97,11 @@ template <class T> class Graph {
  */
 template <class T> class FieldGraph : public Graph<T> {
   public:
-    FieldGraph() : Graph<T>(){};
+    FieldGraph(minpath::Logger logger = minpath::getLogger())
+        : Graph<T>(0, logger){};
     FieldGraph(T ist, T jst, T ien, T jen, T imin, T imax, T jmin, T jmax,
-               Obstacles<T>& obst);
+               Obstacles<T>& obst,
+               minpath::Logger logger = minpath::getLogger());
     //			void build(T imin, T imax, T jmin, T jmax, Obstacles<T>&
     // obst);
     void build();
@@ -109,20 +113,15 @@ template <class T> class FieldGraph : public Graph<T> {
 
 } /* namespace minpath */
 
-/* ********************************************************************************************
- */
-/* ********************************************************************************************
- */
-/* ********************************************************************************************
- */
-/* ********************************************************************************************
- */
-template <class T> minpath::Graph<T>::Graph(long nNodes) {}
+template <class T>
+minpath::Graph<T>::Graph(minpath::Logger logger) : _logger(logger) {}
 
 template <class T>
 inline minpath::FieldGraph<T>::FieldGraph(T ist, T jst, T ien, T jen, T imin,
                                           T imax, T jmin, T jmax,
-                                          Obstacles<T>& obst) {
+                                          Obstacles<T>& obst,
+                                          spdlog::logger logger)
+    : Graph<T>(logger) {
     this->ist = ist;
     this->jst = jst;
     this->ien = ien;
@@ -256,8 +255,7 @@ template <class T> inline void minpath::FieldGraph<T>::build() {
         }
     }
 }
-/* ********************************************************************************************
- */
+
 template <class T>
 void minpath::Graph<T>::addNode(const minpath::Node<T>& node) {
     this->_nodes[node.getNodeId()] = node;
@@ -269,16 +267,14 @@ void minpath::Graph<T>::addNodes(const std::vector<minpath::Node<T>>& nodes) {
         addNode(node);
     }
 }
-/* ********************************************************************************************
- */
+
 template <class T>
 inline std::list<minpath::Node<T>*>
 minpath::FieldGraph<T>::get_linked_nodes(T i, T j) {
     std::list<minpath::Node<T>*> neigh;
     return neigh;
 }
-/* ********************************************************************************************
- */
+
 template <typename T>
 inline std::ostream& minpath::operator<<(std::ostream& out,
                                          const Graph<T>& curr) {
@@ -353,15 +349,13 @@ template <class T> inline size_t minpath::Graph<T>::getStopNodeId() {
     }
     return -1;
 }
-/* ********************************************************************************************
- */
+
 template <class T>
 inline T minpath::Graph<T>::get_min_dist(std::unordered_set<size_t>& nodes) {
     auto n = get_min_dist_node(nodes);
     return n.getMinDistFromStart();
 }
-/* ********************************************************************************************
- */
+
 template <class T>
 inline minpath::Node<T>
 minpath::Graph<T>::get_min_dist_node(std::unordered_set<size_t>& nodesIds) {
@@ -395,8 +389,7 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
 
     initializeGraph();
 
-    std::cout << "initialized graph\n"
-              << "\n";
+    _logger.debug("initialized graph");
 
     auto startNodeIdx = getStartNodeId();
     auto curDist = node(startNodeIdx).getMinDistFromStart();
@@ -409,7 +402,9 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
         for (auto curId : nodesToVisit) {
             auto& cur = node(curId);
             cur.setVisited(true);
-            std::cout << "Current node:\n " << cur << "\n";
+            if (_logger.should_log(spdlog::level::level_enum::trace)) {
+                std::cout << "Current node:\n " << cur << "\n";
+            }
 
             for (auto& [nId, dist] : cur.neighbors()) {
                 auto& nNode = node(nId);
@@ -423,24 +418,35 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
                         distances.insert(curDist + dist);
                     }
                 }
-                std::cout << "Current neighbor:\n " << nNode << "\n";
+                if (_logger.should_log(spdlog::level::level_enum::trace)) {
+                    std::cout << "Current neighbor:\n " << nNode << "\n";
+                }
             }
         }
         nodesToVisit.clear();
         if (!distances.empty()) {
-            printSet<T>(distances, "distances");
+            if (_logger.should_log(spdlog::level::level_enum::trace)) {
+                printSet<T>(distances, "distances");
+            }
+
             curDist = *distances.begin();
+            _logger.trace("Will process nodes at distance: {0}", curDist);
+
             // find nodes to visit
-            std::cout << "Will process nodes at distance " << curDist << "\n";
             nodesToVisit = getNodesAtDistance(curDist);
-            printSet<size_t>(nodesToVisit, "nodesToVisit");
+
+            if (_logger.should_log(spdlog::level::level_enum::trace)) {
+                printSet<size_t>(nodesToVisit, "nodesToVisit");
+            }
         }
 
         distances.erase(curDist);
 
         if (endNode.wasVisited() && curDist >= endNode.getMinDistFromStart()) {
-            std::cout << "End node visited and distances from other nodes are "
-                         "larger than the path already found, stopping walk\n";
+            _logger.debug(
+                "End node visited and distances from other nodes are larger "
+                "than the path already found ({0}), stopping walk",
+                curDist);
             break;
         }
     }

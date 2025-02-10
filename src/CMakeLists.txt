@@ -1,14 +1,11 @@
 project (ShortestPath)
 
-set (MINPATH_HEADERS 
-	Path.h
-	Node.h
-)
 add_library(minpath SHARED
 	Node.cpp
 	Path.cpp
 	Graph.cpp
 	Obstacles.cpp
+	Logger.cpp
 )
 
 set (LIBRARIES 
@@ -22,5 +19,5 @@ set (LIBRARIES
 add_executable(shortest_path shortest_path.cpp)
 #add_executable(test test.cpp)
 
-
+target_link_libraries(minpath fmt)
 target_link_libraries(shortest_path ${LIBRARIES})

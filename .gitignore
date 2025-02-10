@@ -8,3 +8,7 @@
 /cmake_install.cmake
 .vscode/settings.json
 .clang-format
+.vscode/c_cpp_properties.json
+examples/input_graph.coords
+examples/input_graph.dist
+examples/input_graph.nodes
