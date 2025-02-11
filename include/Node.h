@@ -40,8 +40,9 @@ template <class T> class Node {
         NodeType node_type = NodeType::regular;
         bool was_visited = false;
         T i{0}, j{0}; // node coordinates
-        long id{0};
+        size_t id{0};
         T min_dist_from_start{0};
+        size_t idPrevStep{0};
     } node_data_t;
 
     Node(size_t id = 0);
@@ -52,6 +53,8 @@ template <class T> class Node {
     void setId(size_t id) { _node.id = id; }
     void setMinDistFromStart(T dist) { _node.min_dist_from_start = dist; }
     T getMinDistFromStart() const { return _node.min_dist_from_start; }
+    void setPrevStepId(T id) { _node.idPrevStep = id; }
+    T getPrevStepId() const { return _node.idPrevStep; }
     T getDist(const Node<T>& neighbor) const;
     size_t getNodeId() const { return _node.id; }
     void addNeighbour(Node<T>& n, T dist = 1);
@@ -112,6 +115,7 @@ inline std::ostream& minpath::operator<<(std::ostream& out,
               << curr.getNodeData().j << std::endl;
     std::cout << "Node> min.path from start: " << curr.getMinDistFromStart()
               << std::endl;
+    std::cout << "Node> Prev Step Node: " << curr.getPrevStepId() << std::endl;
     std::cout << "Node> was visited: " << curr.wasVisited() << std::endl;
     ;
     std::cout << "Node> is start: " << curr.isStart() << std::endl;

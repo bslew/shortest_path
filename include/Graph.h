@@ -19,6 +19,7 @@
 #include <optional>
 #include <set>
 #include <unordered_set>
+#include <vector>
 
 namespace minpath {
 
@@ -78,6 +79,7 @@ template <class T> class Graph {
     std::set<size_t> getNodesAtDistance(T dist);
 
     std::optional<T> solveMinimalDistance();
+    std::vector<size_t> getShortestPathNodes();
     void dumpGraph(std::string dumpFile);
     // T solveMinimalStepsCount();
 
@@ -410,11 +412,13 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
                 auto& nNode = node(nId);
                 if (!nNode.wasVisited()) {
                     nNode.setMinDistFromStart(curDist + dist);
+                    nNode.setPrevStepId(curId);
                     nNode.setVisited(true);
                     distances.insert(curDist + dist);
                 } else {
                     if (curDist + dist < nNode.getMinDistFromStart()) {
                         nNode.setMinDistFromStart(curDist + dist);
+                        nNode.setPrevStepId(curId);
                         distances.insert(curDist + dist);
                     }
                 }
@@ -455,6 +459,20 @@ inline std::optional<T> minpath::Graph<T>::solveMinimalDistance() {
         return endNode.getMinDistFromStart();
     }
     return std::nullopt;
+}
+
+template <class T>
+inline std::vector<size_t> minpath::Graph<T>::getShortestPathNodes() {
+    std::vector<size_t> path;
+    auto endNode = getStopNodeId();
+    auto nodeId = node(endNode).getNodeId();
+
+    while (nodeId != getStartNodeId()) {
+        path.push_back(nodeId);
+        nodeId = node(nodeId).getPrevStepId();
+    }
+    path.push_back(nodeId);
+    return std::vector(path.rbegin(), path.rend());
 }
 
 template <class T>

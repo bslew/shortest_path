@@ -106,6 +106,10 @@ int main(int argc, char** argv) {
     if (opt["algo"].as<string>() == "MinimalDistance") {
         auto minDist = G.solveMinimalDistance();
         if (minDist.has_value()) {
+            auto shortestPath = G.getShortestPathNodes();
+            if (logger.should_log(spdlog::level::level_enum::info)) {
+                minpath::printVec<size_t>(shortestPath, "min path nodes");
+            }
             logger.info("Minimal distance to destination node is {0}",
                         minDist.value());
         } else {

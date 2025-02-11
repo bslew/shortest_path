@@ -38,9 +38,14 @@ TEST(ShortestPathTest, twoWaysDifferentDistances) {
     G.addNodes({n0, n1, n2, n3});
 
     auto minDist = G.solveMinimalDistance();
+    auto shortestPath = G.getShortestPathNodes();
     ASSERT_TRUE(minDist.has_value()); // Expected path exists
     ASSERT_EQ(minDist.value(),
               3); // Expected shortest path from node 0 to node 3 is 3
+    ASSERT_EQ(
+        shortestPath,
+        std::vector<size_t>(
+            {0, 2, 3})); // Expected shortest path goes through nodes 0, 2, 3
 }
 
 TEST(ShortestPathTest, twoWaysDifferentDistances2) {
@@ -82,9 +87,15 @@ TEST(ShortestPathTest, twoWaysDifferentDistances2) {
     G.addNodes({n0, n1, n2, n3, n4});
 
     auto minDist = G.solveMinimalDistance();
+    auto shortestPath = G.getShortestPathNodes();
+
     ASSERT_TRUE(minDist.has_value()); // Expected path exists
     ASSERT_EQ(minDist.value(),
               6); // Expected shortest path from node 0 to node 4 is 6
+    ASSERT_EQ(shortestPath,
+              std::vector<size_t>(
+                  {0, 2, 3,
+                   4})); // Expected shortest path goes through nodes 0, 2, 3, 4
 }
 
 TEST(ShortestPathTest, twoWaysDifferentDistances3) {
@@ -116,9 +127,14 @@ TEST(ShortestPathTest, twoWaysDifferentDistances3) {
     G.addNodes({n0, n1, n2});
 
     auto minDist = G.solveMinimalDistance();
+    auto shortestPath = G.getShortestPathNodes();
+
     ASSERT_TRUE(minDist.has_value()); // Expected path exists
     ASSERT_EQ(minDist.value(),
               3); // Expected shortest path from node 0 to node 2 is 3
+    ASSERT_EQ(shortestPath,
+              std::vector<size_t>(
+                  {0, 1, 2})); // Expected shortest path goes through nodes 0, 2
 }
 
 TEST(ShortestPathTest, pathDoesNotExist) {
