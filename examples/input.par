@@ -1,7 +1,7 @@
 field_xmin=0
 field_ymin=0
-field_xmax=2
-field_ymax=2
+field_xmax=4
+field_ymax=4
 algo=MinimalDistance
 x=0
 y=0
@@ -9,3 +9,4 @@ xf=2
 yf=1
 obst=obstacles1.txt
 dg=input_graph
+dsp=shortest_path
