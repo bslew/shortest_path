@@ -81,6 +81,7 @@ template <class T> class Graph {
     std::optional<T> solveMinimalDistance();
     std::vector<size_t> getShortestPathNodes();
     void dumpGraph(std::string dumpFile);
+    void dumpShortestPath(std::string dumpFile);
     // T solveMinimalStepsCount();
 
     std::map<size_t, minpath::Node<T>> _nodes;
@@ -500,6 +501,28 @@ inline void minpath::Graph<T>::dumpGraph(std::string dumpFile) {
     for (auto [id, node] : nodes()) {
         ofs << id << " ";
         for (auto coord : node.coords()) {
+            ofs << coord << " ";
+        }
+        ofs << std::endl;
+    }
+    ofs.close();
+}
+
+template <class T>
+inline void minpath::Graph<T>::dumpShortestPath(std::string dumpFile) {
+    std::ofstream ofsN(dumpFile + ".nodes");
+    auto shortestPath = getShortestPathNodes();
+    assert(ofsN.is_open());
+    for (auto id : shortestPath) {
+        ofsN << id << std::endl;
+    }
+    ofsN.close();
+
+    // dump coordinates
+    std::ofstream ofs(dumpFile + ".coords");
+    assert(ofs.is_open());
+    for (auto id : shortestPath) {
+        for (auto coord : node(id).coords()) {
             ofs << coord << " ";
         }
         ofs << std::endl;

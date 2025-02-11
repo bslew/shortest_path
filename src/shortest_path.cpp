@@ -112,6 +112,9 @@ int main(int argc, char** argv) {
             }
             logger.info("Minimal distance to destination node is {0}",
                         minDist.value());
+            if (opt["dsp"].as<string>() != "") {
+                G.dumpShortestPath(opt["dsp"].as<string>());
+            }
         } else {
             logger.info("End node cannot be reached");
         }
@@ -216,7 +219,9 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
             // c,-50,50,0.5
             // - will create a circular mask on sphere in deg."
             // "Azimuth from south westwards")
-            ("dg", po::value<string>()->default_value(""), "dump graph")(
+            ("dg", po::value<string>()->default_value(""),
+             "dump graph")("dsp", po::value<string>()->default_value(""),
+                           "dump shortest path")(
                 "algo", po::value<string>()->default_value("dijkstra"),
                 "select algorithm."
                 "For now only dijkstra is possible")
