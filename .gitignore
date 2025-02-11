@@ -12,3 +12,6 @@
 examples/input_graph.coords
 examples/input_graph.dist
 examples/input_graph.nodes
+examples/shortest_path.coords
+examples/shortest_path.nodes
+examples/.plot_function.log
