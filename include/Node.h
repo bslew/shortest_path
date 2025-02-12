@@ -58,6 +58,7 @@ template <class T> class Node {
     T getDist(const Node<T>& neighbor) const;
     size_t getNodeId() const { return _node.id; }
     void addNeighbour(Node<T>& n, T dist = 1);
+    void addEdge(Node<T>& n, T dist = 1);
     void addNeighbour(size_t id, T dist) { _node.neighbors[id] = dist; }
     void removeNeighbour(size_t id);
     bool isStart() const { return _node.node_type == start; }
@@ -85,6 +86,11 @@ template <class T> inline minpath::Node<T>::~Node() {
 
 template <class T> void minpath::Node<T>::addNeighbour(Node<T>& n, T dist) {
     this->_node.neighbors[n.getNodeId()] = dist;
+}
+
+template <class T> void minpath::Node<T>::addEdge(Node<T>& n, T dist) {
+    this->_node.neighbors[n.getNodeId()] = dist;
+    n.neighbors[getNodeId()] = dist;
 }
 
 template <class T> inline void minpath::Node<T>::removeNeighbour(size_t id) {

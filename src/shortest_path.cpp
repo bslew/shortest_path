@@ -78,17 +78,17 @@ int main(int argc, char** argv) {
     long imax = opt["field_xmax"].as<int>();
     long jmin = opt["field_ymin"].as<int>();
     long jmax = opt["field_ymax"].as<int>();
+    bool diagonal = opt["field_diag_connections"].as<bool>();
     long ist = opt["x"].as<int>();
     long jst = opt["y"].as<int>();
     long ien = opt["xf"].as<int>();
     long jen = opt["yf"].as<int>();
-
     //
     // build a graph
     //
     logger.debug("Building graph");
     minpath::FieldGraph<int> G(ist, jst, ien, jen, imin, imax, jmin, jmax,
-                               field, logger);
+                               field, diagonal, logger);
 
     // G.node(0).neighbors()[3] = 2;
 
@@ -237,7 +237,11 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
                     "field_xmax", po::value<int>()->default_value(0),
                     "maximal x coordinate of the field")(
                     "field_ymax", po::value<int>()->default_value(0),
-                    "maximal y coordinate of the field")
+                    "maximal y coordinate of the field")(
+                    "field_diag_connections",
+                    po::value<bool>()->default_value(false),
+                    "connect nodes on rectangular grid along diagonals of "
+                    "neighboring nodes forming a square")
 
             ;
 

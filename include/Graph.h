@@ -101,13 +101,13 @@ template <class T> class Graph {
 template <class T> class FieldGraph : public Graph<T> {
   public:
     FieldGraph(minpath::Logger logger = minpath::getLogger())
-        : Graph<T>(0, logger){};
+        : Graph<T>(logger){};
     FieldGraph(T ist, T jst, T ien, T jen, T imin, T imax, T jmin, T jmax,
-               Obstacles<T>& obst,
+               Obstacles<T>& obst, bool diagonal = false,
                minpath::Logger logger = minpath::getLogger());
     //			void build(T imin, T imax, T jmin, T jmax, Obstacles<T>&
     // obst);
-    void build();
+    void build(bool diagonal = false);
     std::list<minpath::Node<T>*> get_linked_nodes(T i, T j);
 
     T imin, imax, jmin, jmax, ist, jst, ien, jen; // coordinate space
@@ -122,7 +122,7 @@ minpath::Graph<T>::Graph(minpath::Logger logger) : _logger(logger) {}
 template <class T>
 inline minpath::FieldGraph<T>::FieldGraph(T ist, T jst, T ien, T jen, T imin,
                                           T imax, T jmin, T jmax,
-                                          Obstacles<T>& obst,
+                                          Obstacles<T>& obst, bool diagonal,
                                           spdlog::logger logger)
     : Graph<T>(logger) {
     this->ist = ist;
@@ -136,12 +136,12 @@ inline minpath::FieldGraph<T>::FieldGraph(T ist, T jst, T ien, T jen, T imin,
     this->jmax = jmax;
 
     this->_obst = obst;
-    build();
+    build(diagonal);
 }
 
 template <class T> minpath::Graph<T>::~Graph() {}
 
-template <class T> inline void minpath::FieldGraph<T>::build() {
+template <class T> inline void minpath::FieldGraph<T>::build(bool diagonal) {
     typename minpath::Node<T> n;
 
     // allocate memory for all graph nodes
@@ -172,58 +172,34 @@ template <class T> inline void minpath::FieldGraph<T>::build() {
     // make connections
     //
 
-    // lower left corner
-    field[0][0].addNeighbour(field[0][1]);
-    field[0][0].addNeighbour(field[1][0]);
-    // field[0][0].addNeighbour(field[1][1]);
-
-    // lower right corner
-    field[Ncols - 1][0].addNeighbour(field[Ncols - 2][0]);
-    field[Ncols - 1][0].addNeighbour(field[Ncols - 1][1]);
-
-    // upper left corner
-    field[0][Nrows - 1].addNeighbour(field[1][Nrows - 1]);
-    field[0][Nrows - 1].addNeighbour(field[0][Nrows - 2]);
-
-    // upper right corner
-    field[Ncols - 1][Nrows - 1].addNeighbour(field[Ncols - 2][Nrows - 1]);
-    field[Ncols - 1][Nrows - 1].addNeighbour(field[Ncols - 1][Nrows - 2]);
-
-    // bottom line
-    for (long i = 1; i < Ncols - 1; i++) {
-        field[i][0].addNeighbour(field[i - 1][0]);
-        field[i][0].addNeighbour(field[i + 1][0]);
-        field[i][0].addNeighbour(field[i][1]);
-    }
-
-    // top line
-    for (long i = 1; i < Ncols - 1; i++) {
-        field[i][Nrows - 1].addNeighbour(field[i - 1][Nrows - 1]);
-        field[i][Nrows - 1].addNeighbour(field[i + 1][Nrows - 1]);
-        field[i][Nrows - 1].addNeighbour(field[i][Nrows - 2]);
-    }
-
-    // left line
-    for (long j = 1; j < Nrows - 1; j++) {
-        field[0][j].addNeighbour(field[0][j - 1]);
-        field[0][j].addNeighbour(field[0][j + 1]);
-        field[0][j].addNeighbour(field[1][j]);
-    }
-
-    // right line
-    for (long j = 1; j < Nrows - 1; j++) {
-        field[Ncols - 1][j].addNeighbour(field[Ncols - 1][j - 1]);
-        field[Ncols - 1][j].addNeighbour(field[Ncols - 1][j + 1]);
-        field[Ncols - 1][j].addNeighbour(field[Ncols - 2][j]);
-    }
-
-    // inside nodes
-    for (long i = 1; i < Ncols - 1; i++) {
-        for (long j = 1; j < Nrows - 1; j++) {
-            field[i][j].addNeighbour(field[i - 1][j]);
-            field[i][j].addNeighbour(field[i + 1][j]);
-            field[i][j].addNeighbour(field[i][j - 1]);
-            field[i][j].addNeighbour(field[i][j + 1]);
+    for (long i = 0; i < Ncols; i++) {
+        for (long j = 0; j < Nrows; j++) {
+            if (i > 0) {
+                field[i][j].addNeighbour(field[i - 1][j]);
+            }
+            if (i < Ncols - 1) {
+                field[i][j].addNeighbour(field[i + 1][j]);
+            }
+            if (j > 0) {
+                field[i][j].addNeighbour(field[i][j - 1]);
+            }
+            if (j < Nrows - 1) {
+                field[i][j].addNeighbour(field[i][j + 1]);
+            }
+            if (diagonal) {
+                if (i > 0 && j < Nrows - 1) {
+                    field[i][j].addNeighbour(field[i - 1][j + 1]);
+                }
+                if (i < Ncols - 1 && j < Nrows - 1) {
+                    field[i][j].addNeighbour(field[i + 1][j + 1]);
+                }
+                if (i < Ncols - 1 && j > 0) {
+                    field[i][j].addNeighbour(field[i + 1][j - 1]);
+                }
+                if (i > 0 && j > 0) {
+                    field[i][j].addNeighbour(field[i - 1][j - 1]);
+                }
+            }
         }
     }
 
@@ -246,6 +222,22 @@ template <class T> inline void minpath::FieldGraph<T>::build() {
         }
         if (j < Nrows - 1) {
             field[i][j + 1].removeNeighbour(removedNodeId);
+        }
+        if (diagonal) {
+            // remove diagonal connections
+            if (i > 0 && j > 0) {
+                field[i - 1][j - 1].removeNeighbour(removedNodeId);
+            }
+            if (i < Ncols - 1 && j < Nrows - 1) {
+                field[i + 1][j + 1].removeNeighbour(removedNodeId);
+            }
+            // remove diagonal connections
+            if (i < Ncols - 1 && j > 0) {
+                field[i + 1][j - 1].removeNeighbour(removedNodeId);
+            }
+            if (i > 0 && j < Nrows - 1) {
+                field[i - 1][j + 1].removeNeighbour(removedNodeId);
+            }
         }
         // remove connections for obstacle node
         field[i][j].neighbors().clear();
