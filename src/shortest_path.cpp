@@ -1,20 +1,11 @@
 /* This program implements calculation of finding shortest path from start node
- * to end node of any graph.
+ * to end node on any graph.
  *
  * Jan 1, 2022, 8:25:00 PM
  */
 
-/*!
- * \file test.cpp
- *
- *  Project: shortest_path
- *  Created on: Jan 1, 2022 8:26:08 PM
- *  Author: blew
- */
-
 #include "Graph.h"
 #include "Logger.h"
-#include "Path.h"
 #include <assert.h>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -40,66 +31,41 @@ int main(int argc, char** argv) {
     // initialize parser
     boost::program_options::variables_map opt = parseOptions(argc, argv);
 
+    // initialize looger
     auto logger = minpath::getLogger(opt["verbosity"].as<int>());
     logger.debug("shortest_path - NEW RUN");
     logger.debug(getCmdString(argc, argv));
 
-    //	std::cout << opt["input_file"].as< vector<string> >() << std::endl;
-    //	if (opt.count("input-file")) {
-    //	vector<string> input_files=opt["input-file"].as< vector<string> >();
-
-    //
-    // save yaml config file for the dataset
-    //
-    //	YAML::Node config;
-    //	config["orig_ns"]=opt["ns"].as<long>();
-    //	config["reg_ns"]=opt["nsc"].as<long>();
-    //	config["hmin"]=opt["hmin"].as<double>();
-    //	for (auto ch : channels) {
-    //		config["channels"].push_back(ch);
-    //	}
-    //	std::ofstream fout(opt["odir"].as<string>()+"/config.yaml");
-    //	fout << config;
-    //	fout.close();
-
-    //	exit(0);
-    //	std::cout << "x: " << opt["x"].as<int>() << "\n";
-
-    ///
-    /// Loading obstacles as list of i,j coordinates in the field
-    ///
-
+    // Load obstacles as list of i,j coordinates in the field
     logger.debug("Loading obstacles from {}", opt["obst"].as<string>());
     minpath::Obstacles<int> field;
     field.load(opt["obst"].as<string>());
     logger.debug("Loaded {} obstacle points", field.size());
 
+    // define rectangular grid parameters
     long imin = opt["field_xmin"].as<int>();
     long imax = opt["field_xmax"].as<int>();
     long jmin = opt["field_ymin"].as<int>();
     long jmax = opt["field_ymax"].as<int>();
     bool diagonal = opt["field_diag_connections"].as<bool>();
+    // define inital and final coordinates
     long ist = opt["x"].as<int>();
     long jst = opt["y"].as<int>();
     long ien = opt["xf"].as<int>();
     long jen = opt["yf"].as<int>();
-    //
+
     // build a graph
-    //
     logger.debug("Building graph");
     minpath::FieldGraph<int> G(ist, jst, ien, jen, imin, imax, jmin, jmax,
                                field, diagonal, logger);
 
-    // G.node(0).neighbors()[3] = 2;
-
-    logger.debug("Graph done");
-
     if (opt["pg"].as<bool>()) {
+        logger.debug("Printing graph");
         std::cout << "Graph\n" << G << "\n";
-        exit(0);
     }
 
     if (opt["dg"].as<string>() != "") {
+        logger.debug("Dumping graph to file: {0}", opt["dg"].as<string>());
         G.dumpGraph(opt["dg"].as<string>());
     }
 
@@ -119,42 +85,7 @@ int main(int argc, char** argv) {
             logger.info("End node cannot be reached");
         }
         return 0;
-        // } else if (opt["algo"].as<string>() == "MinimalStepsCount") {
-        //     auto minDist = G.solveMinimalStepsCount();
-
-        //     std::cout << "minimal distance to destination node is " <<
-        //     minDist
-        //               << std::endl;
-        //     return 0;
     }
-
-    // minpath::Path p(opt["x"].as<int>(), opt["y"].as<int>(),
-    // opt["xf"].as<int>(),
-    //                 opt["yf"].as<int>(), opt["verbosity"].as<int>());
-
-    // logger.info("Starting walk");
-    // p.step(opt["x"].as<long>(), opt["y"].as<long>());
-
-    return 0;
-
-    //
-    // iterate over all input files in parallel
-    //
-    //	vector<string>::const_iterator fIt;
-    long i = 0;
-    //#pragma omp parallel for private(i) firstprivate(channels)
-    //	for (auto infile : input_files) {
-    //	for (fIt=input_files.begin(); fIt!=input_files.end();++fIt) {
-    //	for (i=0;i<input_files.size();i++) {
-    //		string infile=*fIt;
-    //		string infile=input_files[i];
-    //    	logger.info("Processing file: {}", infile);
-    //    	logger.debug("loading data...");
-
-    //    	DirectionAh
-    //    ahSunCmd(opt["sunA"].as<double>(),opt["sunh"].as<double>());
-    //	}
-
     return 0;
 }
 
@@ -307,11 +238,6 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
             cout << visible << "\n";
             exit(0);
         }
-
-        //    	if (vm["version"].as<bool>()) {
-        //    		std::cout << getProgramVersionString() << std::endl;
-        //    		exit(0);
-        //    	}
 
         if (vm.count("version")) {
             std::cout << getProgramVersionString() << std::endl;
