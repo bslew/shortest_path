@@ -16,10 +16,6 @@
 #include <string>
 #include <time.h>
 
-//#include <yaml-cpp/yaml.h>
-
-#define PARAMETER_FILE "input.par"
-
 using namespace std;
 
 string getCmdString(int argc, char** argv);
@@ -97,16 +93,12 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
 
     try {
         int verbo = 1;
-        bool boolopt;
-        long longopt;
-        double dbl;
         string stropt;
         vector<string> svec;
         stringstream ss;
         ss << std::getenv("HOME") << "/.config/shortest_path/config.txt";
         string config_file = ss.str();
         boost::filesystem::path cwd = boost::filesystem::current_path();
-        //        string parameter_file=cwd.string()+"/input.par";
         string parameter_file = "input.par";
 
         // Declare a group of options that will be
@@ -143,16 +135,10 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
             ("obst", po::value<string>()->default_value(""),
              "Obstacles file (space separated x,y integer coordinates.")(
                 "pg", po::value<bool>()->default_value(false),
-                "print graph and exit")
-            //		    ("mask",
-            // po::value<string>(&stropt)->default_value(""), "specify mask as
-            // one of: \n" 					"c,A,Z,r -- eg.
-            // c,-50,50,0.5
-            // - will create a circular mask on sphere in deg."
-            // "Azimuth from south westwards")
-            ("dg", po::value<string>()->default_value(""),
-             "dump graph")("dsp", po::value<string>()->default_value(""),
-                           "dump shortest path")(
+                "print graph and exit")(
+                "dg", po::value<string>()->default_value(""),
+                "dump graph")("dsp", po::value<string>()->default_value(""),
+                              "dump shortest path")(
                 "algo", po::value<string>()->default_value("dijkstra"),
                 "select algorithm."
                 "For now only dijkstra is possible")
@@ -217,7 +203,6 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
         if (!ifs) {
             cerr << "cannot open config file: " << config_file
                  << " (ignoring)\n";
-            //            return 0;
         } else {
             store(parse_config_file(ifs, config_file_options), vm);
             notify(vm);
@@ -227,7 +212,6 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
         ifs.open(parameter_file.c_str());
         if (!ifs.is_open()) {
             cerr << "cannot open parameter file: " << parameter_file << "\n";
-            //            return 0;
         } else {
             // cout << "Using parameter file " << parameter_file << "\n";
             store(parse_config_file(ifs, parameter_file_options), vm);
@@ -253,15 +237,6 @@ boost::program_options::variables_map parseOptions(int argc, char** argv) {
                 cout << "\n";
             }
         }
-        /*
-                else {
-                        cout << "No input files provided" << std::endl;
-                        exit(0);
-                }
-        */
-
-        // if (verbo > 0)
-        //     cout << "Verbosity level is " << verbo << "\n";
     } catch (exception& e) {
         cout << e.what() << "\n";
         exit(1);

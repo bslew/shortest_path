@@ -28,13 +28,6 @@ template <class T> class Node {
   public:
     typedef enum { regular, start, end } NodeType;
 
-    // struct neighbor_t {
-    //     size_t id = 0;
-    //     T dist{1};
-    //     const bool operator<(const neighbor_t& r) const { return (id < r.id);
-    //     }
-    // };
-
     typedef struct {
         std::map<size_t, T> neighbors;
         NodeType node_type = NodeType::regular;

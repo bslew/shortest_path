@@ -1,9 +1,6 @@
 project (ShortestPath)
 
 add_library(minpath SHARED
-	Node.cpp
-	Graph.cpp
-	Obstacles.cpp
 	Logger.cpp
 )
 

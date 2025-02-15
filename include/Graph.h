@@ -26,10 +26,6 @@ namespace minpath {
 template <class T> class Graph;
 template <typename T>
 std::ostream& operator<<(std::ostream& out, Graph<T> const& curr);
-
-/*
- *
- */
 template <class T> class Graph {
   public:
     Graph(minpath::Logger logger = minpath::getLogger());
@@ -38,12 +34,12 @@ template <class T> class Graph {
     void addNode(const minpath::Node<T>& node);
     void addNodes(const std::vector<minpath::Node<T>>& nodes);
     /*!
-            \brief return set of
-            \details
-            @param
-            @return
+    \brief return set of
+    \details
+    @param
+    @return
 
-            \date Jun 2, 2022, 2:25:43 PM
+    \date Jun 2, 2022, 2:25:43 PM
      */
     std::unordered_set<size_t> getUnvisitedNodes();
     std::map<size_t, minpath::Node<T>>& nodes() { return _nodes; }
@@ -53,24 +49,24 @@ template <class T> class Graph {
     minpath::Node<T>& node(size_t id) { return _nodes[id]; }
 
     /*!
-            \brief set all nodes as unvisited and set their distances to initial
-       node to infinity \details
+    \brief set all nodes as unvisited and set their distances to initial
+    node to infinity \details
 
-            \date May 12, 2022, 1:53:47 PM
+    \date May 12, 2022, 1:53:47 PM
      */
     void initializeGraph();
     size_t getStartNodeId();
     size_t getStopNodeId();
+
     /*!
-            \brief get a set of unvisited neighbors while updating distances to
-       nodes in the graph \details
-            @param cur - pointer of the node for which we want to obtain a set
-       of unvisited neighbors
-            @return set of unvisited neighbors.
+    \brief get a set of unvisited neighbors while updating distances to nodes in
+    the graph \details
+    @param cur - pointer of the node for which we want to obtain a set of
+    unvisited neighbors
+    @return set of unvisited neighbors.
 
-            \date May 12, 2022, 1:50:20 PM
+    \date May 12, 2022, 1:50:20 PM
      */
-
     std::map<size_t, T> unvisitedNeighbors(minpath::Node<T>& cur);
 
     T get_min_dist(std::unordered_set<size_t>& nodes);
@@ -90,23 +86,21 @@ template <class T> class Graph {
 };
 
 /*!
-        \brief class that initializes the underlying graph as rectangular field
-        \details
-        The graph connections have unit distances and each rectangular field has
-        horizontal and vertical connections to neighbors unless the cells are
-        at the field boundary.
+    \brief class that initializes the underlying graph as rectangular field
+    \details
+    The graph connections have unit distances and each rectangular field has
+    horizontal and vertical connections to neighbors unless the cells are
+    at the field boundary.
 
-        \date May 12, 2022, 11:47:01 AM
+    \date May 12, 2022, 11:47:01 AM
  */
 template <class T> class FieldGraph : public Graph<T> {
   public:
     FieldGraph(minpath::Logger logger = minpath::getLogger())
         : Graph<T>(logger){};
     FieldGraph(T ist, T jst, T ien, T jen, T imin, T imax, T jmin, T jmax,
-               Obstacles<T>& obst, bool diagonal = false,
+               const Obstacles<T>& obst, bool diagonal = false,
                minpath::Logger logger = minpath::getLogger());
-    //			void build(T imin, T imax, T jmin, T jmax, Obstacles<T>&
-    // obst);
     void build(bool diagonal = false);
     std::list<minpath::Node<T>*> get_linked_nodes(T i, T j);
 
@@ -122,8 +116,8 @@ minpath::Graph<T>::Graph(minpath::Logger logger) : _logger(logger) {}
 template <class T>
 inline minpath::FieldGraph<T>::FieldGraph(T ist, T jst, T ien, T jen, T imin,
                                           T imax, T jmin, T jmax,
-                                          Obstacles<T>& obst, bool diagonal,
-                                          spdlog::logger logger)
+                                          const Obstacles<T>& obst,
+                                          bool diagonal, spdlog::logger logger)
     : Graph<T>(logger) {
     this->ist = ist;
     this->jst = jst;
@@ -171,7 +165,6 @@ template <class T> inline void minpath::FieldGraph<T>::build(bool diagonal) {
     //
     // make connections
     //
-
     for (long i = 0; i < Ncols; i++) {
         for (long j = 0; j < Nrows; j++) {
             if (i > 0) {
@@ -285,9 +278,7 @@ inline std::ostream& minpath::operator<<(std::ostream& out,
 }
 
 template <class T> inline void minpath::Graph<T>::initializeGraph() {
-
     // initialize graph distances and other data
-    long int id = 0;
     for (auto& [_, n] : _nodes) {
 
         if (n.isStart()) {

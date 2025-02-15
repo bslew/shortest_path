@@ -16,6 +16,8 @@ namespace minpath {
 
 template <class T> class Obstacles {
   public:
+    Obstacles();
+    Obstacles(const std::vector<std::vector<T>>& coords);
     Obstacles<T>& load(std::string fname);
     Obstacles<T>& add(T x, T y);
     size_t size();
@@ -26,6 +28,12 @@ template <class T> class Obstacles {
 };
 
 } /* namespace minpath */
+
+template <class T> minpath::Obstacles<T>::Obstacles() {}
+
+template <class T>
+minpath::Obstacles<T>::Obstacles(const std::vector<std::vector<T>>& coords)
+    : _coords(coords) {}
 
 template <class T>
 minpath::Obstacles<T>& minpath::Obstacles<T>::load(std::string fname) {
