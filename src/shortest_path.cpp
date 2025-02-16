@@ -34,9 +34,9 @@ int main(int argc, char** argv) {
 
     // Load obstacles as list of i,j coordinates in the field
     logger.debug("Loading obstacles from {}", opt["obst"].as<string>());
-    minpath::Obstacles<int> field;
-    field.load(opt["obst"].as<string>());
-    logger.debug("Loaded {} obstacle points", field.size());
+    minpath::Obstacles<int> obstacles;
+    obstacles.load(opt["obst"].as<string>());
+    logger.debug("Loaded {} obstacle points", obstacles.size());
 
     // define rectangular grid parameters
     long imin = opt["field_xmin"].as<int>();
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
     // build a graph
     logger.debug("Building graph");
     minpath::FieldGraph<int> G(ist, jst, ien, jen, imin, imax, jmin, jmax,
-                               field, diagonal, logger);
+                               obstacles, diagonal, logger);
 
     if (opt["pg"].as<bool>()) {
         logger.debug("Printing graph");

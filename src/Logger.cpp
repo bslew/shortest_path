@@ -12,19 +12,15 @@ Logger getLogger(int verbosity) {
     //    console_sink->set_pattern("[test] [%^%l%$] %v");
 
     auto file_sink =
-        std::make_shared<spdlog::sinks::basic_file_sink_mt>("test.log", true);
+        std::make_shared<spdlog::sinks::basic_file_sink_mt>("run.log", true);
     file_sink->set_level(verb);
 
-    spdlog::logger logger("test", {console_sink, file_sink});
+    spdlog::logger logger("minpath", {console_sink, file_sink});
     logger.set_level(verb);
 
     if (verbosity > 2) {
-        //		cout << "setting verbosity " <<
-        // opt["verbosity"].as<int>()
-        //<< "\n";
         logger.sinks()[0]->set_level(verb);
         logger.sinks()[1]->set_level(verb);
-        // logger.set_level(spdlog::level::debug);
     }
 
     return logger;

@@ -38,13 +38,13 @@ minpath::Obstacles<T>::Obstacles(const std::vector<std::vector<T>>& coords)
 template <class T>
 minpath::Obstacles<T>& minpath::Obstacles<T>::load(std::string fname) {
     std::ifstream ifs(fname);
-    T x, y;
-    long Nobst = 0;
     while (ifs.good()) {
-        ifs >> x >> y;
-        std::vector<T> xy = {x, y};
-        _coords.push_back(xy);
-        Nobst++;
+        T x, y;
+        if (ifs >> x >> y) {
+            std::cout << x << " " << y << "\n";
+            std::vector<T> xy = {x, y};
+            _coords.push_back(xy);
+        }
     }
     ifs.close();
     return *this;

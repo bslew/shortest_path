@@ -99,13 +99,13 @@ template <class T> class FieldGraph : public Graph<T> {
     FieldGraph(minpath::Logger logger = minpath::getLogger())
         : Graph<T>(logger){};
     FieldGraph(T ist, T jst, T ien, T jen, T imin, T imax, T jmin, T jmax,
-               const Obstacles<T>& obst, bool diagonal = false,
+               const Obstacles<T>& obstacles, bool diagonal = false,
                minpath::Logger logger = minpath::getLogger());
     void build(bool diagonal = false);
     std::list<minpath::Node<T>*> get_linked_nodes(T i, T j);
 
     T imin, imax, jmin, jmax, ist, jst, ien, jen; // coordinate space
-    Obstacles<T> _obst;
+    Obstacles<T> _obstacles;
 };
 
 } /* namespace minpath */
@@ -116,8 +116,8 @@ minpath::Graph<T>::Graph(minpath::Logger logger) : _logger(logger) {}
 template <class T>
 inline minpath::FieldGraph<T>::FieldGraph(T ist, T jst, T ien, T jen, T imin,
                                           T imax, T jmin, T jmax,
-                                          const Obstacles<T>& obst,
-                                          bool diagonal, spdlog::logger logger)
+                                          const Obstacles<T>& obstacles,
+                                          bool diagonal, minpath::Logger logger)
     : Graph<T>(logger) {
     this->ist = ist;
     this->jst = jst;
@@ -129,7 +129,7 @@ inline minpath::FieldGraph<T>::FieldGraph(T ist, T jst, T ien, T jen, T imin,
     this->jmin = jmin;
     this->jmax = jmax;
 
-    this->_obst = obst;
+    this->_obstacles = obstacles;
     build(diagonal);
 }
 
@@ -197,10 +197,15 @@ template <class T> inline void minpath::FieldGraph<T>::build(bool diagonal) {
     }
 
     // remove connections between nodes due to obstacles
-    for (auto& xy : _obst.coords()) {
+    for (auto& xy : _obstacles.coords()) {
         auto i = xy[0] - imin;
         auto j = xy[1] - jmin;
 
+        if (i < 0 || i >= Ncols || j < 0 || j >= Nrows) {
+            this->_logger.warn(
+                "Obstacle out of field bounds: {0}, {1}. Ignoring.", i, j);
+            continue;
+        }
         auto removedNodeId = field[i][j].getNodeId();
         // remove left-right connections
         if (i > 0) {

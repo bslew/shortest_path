@@ -1,0 +1,13 @@
+field_xmin=0
+field_ymin=0
+field_xmax=50
+field_ymax=50
+field_diag_connections=false
+algo=MinimalDistance
+x=0
+y=0
+xf=50
+yf=50
+obst=obstacles50.txt
+dg=input_graph
+dsp=shortest_path
