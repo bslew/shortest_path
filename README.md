@@ -49,7 +49,7 @@ dg=input_graph
 dsp=shortest_path
 ```
 
-### Generating file with randomly generated obstacles 
+### Generating file with randomly distributed obstacles 
 Generate file with obstacles. Specify number of obstacles to generate in the rectangular field. 
 ```
 python3 ../python/shortest_path.py --genObstacles --obstacleCount 1000 -o obstacles.txt -c input.par
