@@ -72,12 +72,11 @@ def plot_path(obstacles, path, config, outfile):
         field = plt.Rectangle((xmin, ymin), xmax - xmin + 1, ymax - ymin + 1, fill=False, edgecolor='k', linewidth=5)
         plt.gca().add_patch(field)
 
-    ax = plt.gca()
-    # ax.set_xticklabels(np.arange(xmin, xmax + 1, 1))
-    # ax.set_yticklabels(np.arange(ymin, ymax + 1, 1))
-    # ax.xaxis.set_major_formatter(ticker.FormatStrFormatter('%i'))    
-    # ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%i'))    
+        # plot destination point
+        xf, yf = float(config['xf']), float(config['yf'])
+        plt.plot([xf + 0.5], [yf + 0.5], color='k', marker='x', markersize=5, lw=2)
 
+    ax = plt.gca()
     ax.set_xticklabels([])
     ax.set_yticklabels([])
 

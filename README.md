@@ -72,7 +72,7 @@ start point to destination point.
 python3 ../python/shortest_path.py --plot shortest_path.coords --obstacles obstacles.txt -c input.par -o shortest_path.png
 ```
 
-<img src="examples/obstacles50_1000.png" width="500">
+<img src="examples/obstacles50_1000.gif" width="500">
 
 ## Authors
 Bartosz Lew [bartosz.lew@protonmail.com]
